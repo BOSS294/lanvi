@@ -118,7 +118,7 @@ class _ProfileSetupPageState extends State<ProfileSetupPage> {
                 controller: _usernameController,
                 textCapitalization: TextCapitalization.words,
                 maxLength: 24,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'e.g. Mayank',
                   prefixIcon: Icon(PhosphorIcons.user(PhosphorIconsStyle.light)),
                   counterText: '',

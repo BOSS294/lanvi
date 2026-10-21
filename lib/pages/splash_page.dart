@@ -1,14 +1,12 @@
-// Purpose: Premium animated Lanvi splash and first-launch route selection.
-// How to use: This page is MaterialApp.home and routes to profile setup or home after the reveal.
-// Project: Lanvi | Version: 1.0.0 | Developer: Mayank Chawdhari AKA BOSS294
-// Changelog: v1.0.0 — adds a restrained logo reveal and local profile check.
+// Purpose: Responsive, animated Lanvi splash screen using the official full wordmark asset.
+// How to use: Copy this file's contents into lib/pages/splash_page.dart so the existing main.dart import remains valid.
+// Project: Lanvi | Release: 1.5.0 | Developer: Mayank Chawdhari AKA BOSS294
+// Changelog: 1.5.0 — uses Assets/lanvi-logo.png, respects narrow/short screens, and preserves first-launch routing.
+
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:phosphor_flutter/phosphor_flutter.dart';
 
-import '../core/style/app_radius.dart';
-import '../core/style/app_spacing.dart';
-import '../core/theme/theme_catalog.dart';
 import '../services/profile_service.dart';
 import 'home_page.dart';
 import 'profile_setup_page.dart';
@@ -26,26 +24,37 @@ class _SplashPageState extends State<SplashPage>
   late final Animation<double> _scaleAnimation;
   late final Animation<double> _fadeAnimation;
 
+  static const Color _brandGreen = Color(0xFF0F3D26);
+  static const double _logoAspectWidth = 695;
+  static const double _logoAspectHeight = 780;
+
   @override
   void initState() {
     super.initState();
+
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 720),
+      duration: const Duration(milliseconds: 760),
     );
-    _scaleAnimation = Tween<double>(begin: 0.92, end: 1).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOutCubic),
+
+    _scaleAnimation = Tween<double>(begin: 0.965, end: 1).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOutCubic,
+      ),
     );
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeOut,
     );
+
     _animationController.forward();
     _continueAfterReveal();
   }
 
   Future<void> _continueAfterReveal() async {
-    await Future<void>.delayed(const Duration(milliseconds: 1200));
+    // Keep the complete wordmark visible long enough to register on launch.
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
     if (!mounted) return;
 
     final hasProfile = await ProfileService.hasProfile();
@@ -55,9 +64,8 @@ class _SplashPageState extends State<SplashPage>
       PageRouteBuilder<void>(
         pageBuilder: (context, animation, secondaryAnimation) =>
             hasProfile ? const HomePage() : const ProfileSetupPage(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(opacity: animation, child: child),
         transitionDuration: const Duration(milliseconds: 240),
       ),
     );
@@ -71,63 +79,112 @@ class _SplashPageState extends State<SplashPage>
 
   @override
   Widget build(BuildContext context) {
-    final palette = LanviThemeCatalog.byId(_activeThemeId(context));
-
     return Scaffold(
-      body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: palette.accent,
-                    borderRadius: AppRadius.large,
+      // The supplied wordmark has a white background, so a white canvas makes
+      // the image edges disappear cleanly rather than showing a white tile.
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final availableWidth = math.max(0.0, constraints.maxWidth - 48.0).toDouble();
+            final maxLogoHeight = math.min(390.0, constraints.maxHeight * 0.55).toDouble();
+            final widthAllowedByHeight =
+                maxLogoHeight * (_logoAspectWidth / _logoAspectHeight);
+            final logoWidth = math.min(
+              math.min(330.0, availableWidth),
+              widthAllowedByHeight,
+            ).toDouble();
+            final logoHeight = logoWidth * (_logoAspectHeight / _logoAspectWidth);
+
+            return Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 32,
+                ),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: math.max(0.0, constraints.maxHeight - 64.0).toDouble(),
                   ),
-                  alignment: Alignment.center,
-                  child: Icon(
-                    PhosphorIcons.arrowsLeftRight(PhosphorIconsStyle.light),
-                    color: palette.onAccent,
-                    size: 32,
+                  child: Center(
+                    child: FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: ScaleTransition(
+                        scale: _scaleAnimation,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'Assets/lanvi-logo.png',
+                              width: logoWidth,
+                              height: logoHeight,
+                              fit: BoxFit.contain,
+                              filterQuality: FilterQuality.high,
+                              semanticLabel: 'Lanvi',
+                              errorBuilder: (context, error, stackTrace) {
+                                // Keep launch usable if the asset path is not
+                                // registered yet; the debug console exposes the
+                                // underlying asset error for easy correction.
+                                return Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Image.asset(
+                                      'Assets/lanvi-symbol.png',
+                                      width: 112,
+                                      height: 112,
+                                      fit: BoxFit.contain,
+                                      errorBuilder: (context, symbolError, symbolStack) => const Icon(
+                                        Icons.swap_horiz_rounded,
+                                        size: 72,
+                                        color: _brandGreen,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    const Text(
+                                      'LANVI',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        color: _brandGreen,
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 7,
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 24),
+                            Text(
+                              'LOCAL SHARING. EFFORTLESS WORKFLOW.',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                color: _brandGreen,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 32),
+                            const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                                color: _brandGreen,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  'lanvi',
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -1.6,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'Local sharing. Effortless workflow.',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
-  }
-
-  // Resolve the selected definition from its current theme brightness and
-  // accent-independent platform tokens. This helper keeps the splash simple.
-  LanviThemeId _activeThemeId(BuildContext context) {
-    // ThemeData's primary color is the theme's accent; use it to identify the
-    // active catalogue entry without introducing another global dependency.
-    final primary = Theme.of(context).colorScheme.primary;
-    for (final entry in LanviThemeCatalog.themes.entries) {
-      if (entry.value.accent == primary) return entry.key;
-    }
-    return LanviThemeId.defaultEmerald;
   }
 }

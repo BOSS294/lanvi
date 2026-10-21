@@ -1,0 +1,154 @@
+<!doctype html>
+<!--
+  Purpose: Lanvi desktop receiver dashboard.
+  Integration: Opened by popup.js; communicates only with the loopback PC control API.
+  Project: Lanvi | Developer: Mayank Chawdhari AKA BOSS294
+  Changelog: Redesigned wide dashboard, accessible icon system, activity filters and focused micro-interactions.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>Lanvi — Receiver</title>
+  <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+  <!-- Local inline Phosphor-style icon sprite: no CDN or external request, works offline. -->
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <symbol id="ph-arrow-clockwise" viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M19 12a7 7 0 0 0-12-4.95L4 10"/><path d="M4 17v-5h5"/><path d="M5 12a7 7 0 0 0 12 4.95L20 14"/></symbol>
+    <symbol id="ph-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+    <symbol id="ph-device-mobile" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+    <symbol id="ph-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></symbol>
+    <symbol id="ph-download-simple" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5"/><path d="M5 19v2h14v-2"/></symbol>
+    <symbol id="ph-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="ph-arrows-clockwise" viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M20 12a8 8 0 0 0-14-5.3L4 9"/><path d="M4 17v-5h5"/><path d="M4 12a8 8 0 0 0 14 5.3L20 15"/></symbol>
+    <symbol id="ph-link" viewBox="0 0 24 24"><path d="M10 13.5a4.5 4.5 0 0 0 6.36 0l3-3A4.5 4.5 0 0 0 13 4.14l-1.72 1.72"/><path d="M14 10.5a4.5 4.5 0 0 0-6.36 0l-3 3A4.5 4.5 0 0 0 11 19.86l1.72-1.72"/></symbol>
+    <symbol id="ph-shield-check" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="ph-wifi-high" viewBox="0 0 24 24"><path d="M2 8.8a15 15 0 0 1 20 0M5 12a10.5 10.5 0 0 1 14 0M8.5 15.5a5.3 5.3 0 0 1 7 0M12 19h.01"/></symbol>
+    <symbol id="ph-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 13h8M8 17h8"/></symbol>
+    <symbol id="ph-file-image" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 17l3-3 2 2 2-2 2 3"/><circle cx="9" cy="10" r="1.2"/></symbol>
+    <symbol id="ph-film-strip" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M7 3v18M17 3v18M3 8h4m-4 8h4m10-8h4m-4 8h4"/></symbol>
+    <symbol id="ph-file-pdf" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M8 16h2a1.5 1.5 0 0 0 0-3H8v5m6 0v-5h1a2.5 2.5 0 0 1 0 5h-1m4-5h2m-2 2h2"/></symbol>
+    <symbol id="ph-magnifying-glass" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="7.3"/><path d="m16.2 16.2 4.3 4.3"/></symbol>
+    <symbol id="ph-funnel" viewBox="0 0 24 24"><path d="M3 5h18l-7 8v5l-4 3v-8Z"/></symbol>
+    <symbol id="ph-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3m4 0-1 15H6L5 6m4 4v7m6-7v7"/></symbol>
+    <symbol id="ph-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="ph-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="ph-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6m0-6-6 6"/></symbol>
+    <symbol id="ph-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5m0-8h.01"/></symbol>
+    <symbol id="ph-arrow-up-right" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+    <symbol id="ph-arrow-counter-clockwise" viewBox="0 0 24 24"><path d="M3 7v5h5"/><path d="M4 12a8 8 0 1 0 2.3-5.7L3 9"/></symbol>
+    <symbol id="ph-cloud-slash" viewBox="0 0 24 24"><path d="M5 5a7 7 0 0 1 12.8 3.2A5 5 0 0 1 18 18H8M2 2l20 20"/><path d="M5 10a5 5 0 0 0-1 9h1"/></symbol>
+    <symbol id="ph-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12 18.4 5.6M12 3v2M21 12h-2M12 21v-2M3 12h2"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="ph-pencil-simple" viewBox="0 0 24 24"><path d="m15 5 4 4M4 20l4.5-1 10-10a2.12 2.12 0 0 0-3-3l-10 10Z"/></symbol>
+    <symbol id="ph-eye-slash" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 0 0 2.8 2.8M9.9 5.3A11.7 11.7 0 0 1 12 5c5.5 0 9 7 9 7a15.6 15.6 0 0 1-3.1 3.8M6.2 6.2C3.9 7.8 3 12 3 12s3.5 7 9 7c1 0 2-.2 2.8-.6"/></symbol>
+  </svg>
+
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand-lockup" href="#overview" aria-label="Lanvi home">
+        <img class="brand-mark" src="icons/lanvi-48.png" alt="" width="40" height="40">
+        <span class="brand-copy"><span class="wordmark">lanvi</span><span class="brand-subtitle">LOCAL FILE TRANSFER</span></span>
+      </a>
+      <nav class="top-nav" aria-label="Dashboard sections">
+        <a class="nav-link active" href="#overview">Overview</a>
+        <a class="nav-link" href="#activity">Activity</a>
+        <a class="nav-link" href="#devices">Devices</a>
+        <a class="nav-link" href="media.html" aria-label="Open phone media library">Media</a>
+        <a class="nav-link" href="#connection">Connection</a>
+      </nav>
+      <div class="top-actions">
+        <span id="bridgeBadge" class="status-badge checking"><span class="status-dot"></span><span id="bridgeLabel">Checking bridge</span></span>
+        <button id="refreshBtn" class="icon-button" type="button" aria-label="Refresh receiver status" title="Refresh status"><svg class="ph-icon"><use href="#ph-arrows-clockwise"></use></svg></button>
+      </div>
+    </header>
+
+    <main id="overview">
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow-row"><span class="eyebrow-marker"></span><p class="eyebrow">YOUR PERSONAL FILE BRIDGE</p></div>
+          <h1>Your files.<br><span>Exactly as they are.</span></h1>
+          <p class="intro-copy">Send photos, videos and documents from your phone straight to this PC. Your files stay on your local network—no cloud upload, no recompression.</p>
+          <div class="hero-trust-row"><span><svg class="ph-icon"><use href="#ph-shield-check"></use></svg> Original bytes preserved</span><span><svg class="ph-icon"><use href="#ph-wifi-high"></use></svg> Local network</span></div>
+        </div>
+        <div class="computer-card">
+          <div class="computer-icon"><svg class="ph-icon"><use href="#ph-monitor"></use></svg><span class="mini-online-dot"></span></div>
+          <div class="computer-meta"><span class="meta-label">RECEIVING ON THIS PC</span><strong id="pcName">Detecting PC…</strong><span class="computer-address" id="lanEndpoint">Checking local receiver</span></div>
+          <span id="computer-state-dot" class="computer-state-dot" aria-hidden="true"></span>
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="Transfer overview">
+        <article class="stat-card stat-card-primary"><div class="stat-topline"><span class="stat-label">READY TO DOWNLOAD</span><span class="stat-icon"><svg class="ph-icon"><use href="#ph-download-simple"></use></svg></span></div><strong id="queuedCount" class="stat-value">0</strong><span class="stat-footnote">Files in the receiver queue</span></article>
+        <article class="stat-card"><div class="stat-topline"><span class="stat-label">DOWNLOADED</span><span class="stat-icon"><svg class="ph-icon"><use href="#ph-check-circle"></use></svg></span></div><strong id="completedCount" class="stat-value">0</strong><span class="stat-footnote">Saved through Chrome Downloads</span></article>
+        <article class="stat-card"><div class="stat-topline"><span class="stat-label">CONNECTION</span><span class="stat-icon"><svg class="ph-icon"><use href="#ph-wifi-high"></use></svg></span></div><strong id="connectionMetric" class="stat-value stat-word">Checking</strong><span id="connectionFootnote" class="stat-footnote">Looking for your local bridge</span></article>
+      </section>
+
+      <section class="devices-panel panel" id="devices" aria-labelledby="devicesHeading">
+        <div class="panel-heading devices-heading">
+          <div>
+            <div class="section-kicker"><span class="step-number">02</span><span>LOCAL DISCOVERY</span></div>
+            <h2 id="devicesHeading">Lanvi devices nearby</h2>
+            <p class="panel-description">Discover compatible Lanvi clients on reachable local networks. Discovery never grants transfer permission; pair explicitly with the current QR code.</p>
+          </div>
+          <button id="refreshDevicesBtn" class="button button-secondary" type="button">
+            <svg class="ph-icon"><use href="#ph-radar"></use></svg><span>Rescan network</span>
+          </button>
+        </div>
+        <div class="devices-summary-row">
+          <span id="devicesScanStatus" class="state-pill waiting"><span class="pill-dot"></span>Starting discovery</span>
+          <span id="devicesCount" class="devices-count">0 devices found</span>
+        </div>
+        <div class="devices-security-note"><svg class="ph-icon"><use href="#ph-shield-check"></use></svg><span>Nearby devices are untrusted until authorized through Lanvi pairing. No cloud discovery is used.</span></div>
+        <div id="discoveredDevicesList" class="discovered-devices-list">
+          <div class="devices-empty"><span class="empty-state-icon"><svg class="ph-icon"><use href="#ph-radar"></use></svg></span><strong>Looking for Lanvi devices</strong><p>Keep Lanvi open on the other device and ensure local multicast is allowed on your network.</p></div>
+        </div>
+      </section>
+
+      <section class="content-grid">
+        <article class="panel pairing-panel" id="connection">
+          <div class="panel-heading"><div><div class="section-kicker"><span class="step-number">01</span><span>PAIR A DEVICE</span></div><h2>Connect your phone</h2><p class="panel-description">Scan this code with your phone to establish a temporary local connection.</p></div><span class="panel-icon"><svg class="ph-icon"><use href="#ph-device-mobile"></use></svg></span></div>
+          <div class="pairing-body">
+            <div class="qr-frame"><div id="qrHolder" class="qr-holder"><div class="qr-placeholder"><span class="qr-logo">L</span><small>Waiting for bridge</small></div></div><div class="qr-frame-foot"><svg class="ph-icon"><use href="#ph-shield-check"></use></svg><span>Private local pairing</span></div></div>
+            <div class="pairing-details">
+              <div class="detail-heading"><span id="pairingState" class="state-pill waiting"><span class="pill-dot"></span>Waiting for bridge</span><span class="expires-chip"><svg class="ph-icon"><use href="#ph-clock"></use></svg><span>Expires <strong id="expiryLabel">—</strong></span></span></div>
+              <label class="field-label" for="lanAddress">PC network address</label>
+              <div class="select-wrap"><select id="lanAddress" aria-label="PC LAN address"><option value="">Loading network addresses…</option></select><svg class="ph-icon select-chevron"><use href="#ph-funnel"></use></svg></div>
+              <span class="meta-label url-label">TEMPORARY PAIRING LINK</span>
+              <p id="pairingUrl" class="pairing-url">Start the PC bridge to generate your pairing link.</p>
+              <div class="button-row"><button id="rotateBtn" class="button button-primary" type="button" disabled><svg class="ph-icon"><use href="#ph-arrows-clockwise"></use></svg><span>New pairing code</span></button><button id="copyLinkBtn" class="button button-secondary" type="button" disabled><svg class="ph-icon"><use href="#ph-copy"></use></svg><span>Copy link</span></button></div>
+            </div>
+          </div>
+          <div class="pairing-footnote"><svg class="ph-icon"><use href="#ph-info"></use></svg><p>The QR contains a short-lived access token. Only scan it with your own trusted phone and regenerate it if you think it has been shared.</p></div>
+        </article>
+
+        <article class="panel receiver-panel">
+          <div class="panel-heading"><div><div class="section-kicker"><span class="step-number">02</span><span>RECEIVER STATUS</span></div><h2 id="receiverHeading">Ready when you are</h2><p id="receiverText" class="panel-description">Start the PC bridge, then connect your phone using the QR code.</p></div><span id="receiverIcon" class="receiver-icon"><svg class="ph-icon"><use href="#ph-monitor"></use></svg></span></div>
+          <div class="receiver-status-card"><span class="receiver-status-symbol"><svg class="ph-icon"><use href="#ph-check-circle"></use></svg></span><div class="receiver-status-copy"><strong id="receiverTitle">Waiting for connection</strong><span id="receiverSubtext">The receiver is checking its local service.</span></div><span id="receiverLiveIndicator" class="live-indicator" aria-hidden="true"></span></div>
+          <div class="receiver-facts">
+            <div class="receiver-fact"><span>Download destination</span><strong><svg class="ph-icon"><use href="#ph-download-simple"></use></svg> Chrome Downloads</strong></div>
+            <div class="receiver-fact"><span>File integrity</span><strong><svg class="ph-icon"><use href="#ph-shield-check"></use></svg> SHA-256 verified</strong></div>
+            <div class="receiver-fact"><span>Cloud dependency</span><strong><svg class="ph-icon"><use href="#ph-cloud-slash"></use></svg> None</strong></div>
+          </div>
+          <div class="security-note"><span class="security-icon"><svg class="ph-icon"><use href="#ph-shield-check"></use></svg></span><div><strong id="securityTitle">Encrypted local transfer</strong><p id="securityText">File contents are protected with chunked AES-256-GCM and authenticated upload metadata. File name, size, hash and timing remain observable over local HTTP. No cloud service is used.</p></div></div>
+        </article>
+      </section>
+
+      <section class="panel activity-panel" id="activity">
+        <div class="activity-top"><div><div class="section-kicker"><span class="step-number">03</span><span>YOUR ACTIVITY</span></div><h2>Recent transfers</h2><p class="panel-description">Encrypted incoming files are verified, staged locally, then handed to Chrome Downloads.</p></div><div class="activity-summary"><span class="activity-summary-value" id="historyCount">0 transfers</span><span class="activity-summary-label">Stored locally on this PC</span></div></div>
+        <div class="activity-toolbar"><label class="search-field" for="activitySearch"><svg class="ph-icon"><use href="#ph-magnifying-glass"></use></svg><input id="activitySearch" type="search" placeholder="Search files…" autocomplete="off"><kbd>/</kbd></label><label class="filter-wrap" for="activityFilter"><svg class="ph-icon"><use href="#ph-funnel"></use></svg><select id="activityFilter" aria-label="Filter transfers"><option value="all">All statuses</option><option value="staged">Queued</option><option value="claimed">Starting</option><option value="downloading">Downloading</option><option value="completed">Completed</option><option value="interrupted">Interrupted</option><option value="failed">Failed</option></select></label><button id="clearHistoryBtn" class="button button-quiet" type="button" disabled><svg class="ph-icon"><use href="#ph-trash"></use></svg><span>Clear history</span></button></div>
+        <div class="activity-table-head"><span>FILE</span><span>STATUS</span><span>RECEIVED</span><span>SIZE</span><span class="table-action-label">ACTION</span></div>
+        <div id="emptyState" class="empty-state"><span class="empty-state-icon"><svg class="ph-icon"><use href="#ph-file"></use></svg></span><strong>No transfers yet</strong><p>When you share a file from your phone, it will show up here with its download status and integrity details.</p><button class="button button-secondary empty-refresh" type="button" data-action="refresh"><svg class="ph-icon"><use href="#ph-arrow-clockwise"></use></svg><span>Refresh receiver</span></button></div>
+        <div id="noSearchResults" class="empty-state compact-empty" hidden><span class="empty-state-icon"><svg class="ph-icon"><use href="#ph-magnifying-glass"></use></svg></span><strong>No matching files</strong><p>Try a different filename or status filter.</p></div>
+        <div id="transferList" class="transfer-list" hidden></div>
+        <div class="activity-bottom"><span id="activityShowing">Showing recent activity</span><span class="activity-integrity"><svg class="ph-icon"><use href="#ph-shield-check"></use></svg> File contents are not recompressed</span></div>
+      </section>
+      <footer class="footer"><a class="footer-brand" href="#overview"><span class="footer-mark">L</span><span>lanvi</span></a><span>Built for direct, local sharing.</span><a href="#connection" class="footer-link">Connection details <svg class="ph-icon"><use href="#ph-arrow-up-right"></use></svg></a></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"><svg class="ph-icon toast-icon"><use href="#ph-check-circle"></use></svg><span id="toastMessage">Status updated</span><button id="toastClose" class="toast-close" type="button" aria-label="Dismiss notification">×</button></div>
+  <script src="dashboard.js"></script>
+</body>
+</html>

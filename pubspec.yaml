@@ -1,7 +1,8 @@
-# Lanvi — Phase 01 dependency manifest
-# Purpose: dependencies for the initial UI/UX design system and local preferences.
-# Project: Lanvi | Version: 1.0.0 | Developer: Mayank Chawdhari AKA BOSS294
-# Changelog: v1.0.0 — initial Phase 01 foundation.
+# Purpose: Lanvi dependencies and asset/launcher-icon configuration for the logo and splash update.
+# How to use: Merge with the project's existing pubspec.yaml; do not keep duplicate top-level sections.
+# Project: Lanvi | Version: 1.1.0 | Developer: Mayank Chawdhari AKA BOSS294
+# Changelog: v1.1.0 — registers the full logo asset and configures Android/iOS launcher icons.
+
 name: lanvi
 description: Lanvi local-network file sharing app.
 publish_to: "none"
@@ -18,11 +19,42 @@ dependencies:
   phosphor_flutter: ^2.1.0
   provider: ^6.1.5+1
   shared_preferences: ^2.5.6
-
+  crypto: ^3.0.7
+  file_picker: ^11.0.3
+  http: ^1.6.0
+  mobile_scanner: ^7.4.2
+  receive_sharing_intent: 1.8.1
+  cryptography: ^2.9.0
+  bonsoir: ^7.1.4
+  permission_handler: ^12.0.1
+  flutter_tts: ^4.2.5
+  speech_to_text: 7.4.0
+  audioplayers: ^6.7.1
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 flutter:
   uses-material-design: true
+  assets:
+    - Assets/lanvi-logo.png
+    - Assets/lanvi-app-icon.png
+    - Assets/lanvi-symbol.png
+
+
+
+# Launcher icon generation configuration.
+# Use a symbol-only square icon, not the full wordmark, so it remains legible at small sizes.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "Assets/lanvi-app-icon.png"
+  min_sdk_android: 21
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "Assets/lanvi-app-icon.png"
+  adaptive_icon_foreground_inset: 0
+  remove_alpha_ios: true
+  background_color_ios: "#FFFFFF"

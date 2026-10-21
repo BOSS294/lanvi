@@ -43,3 +43,43 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+pc-bridge/data/
+**/node_modules/
+*.part
+*.tmp
+.DS_Store
+
+# Local editor and operating-system state
+.vscode/
+.fleet/
+*.code-workspace
+Thumbs.db
+Desktop.ini
+
+# Local environment files and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Flutter and native build outputs
+android/build/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/ServiceDefinitions.json
+macos/Flutter/ephemeral/
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
+*.apk
+*.aab
+*.ipa
+*.app/
+*.dSYM/
+*.xcarchive/
+
+# Local logs and crash output
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+crash*.log

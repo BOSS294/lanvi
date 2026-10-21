@@ -1,0 +1,85 @@
+<!doctype html>
+<!--
+  Purpose: Browse phone music/video and stream it to the PC through the encrypted local bridge.
+  Integration: Opened from dashboard.html; calls only the loopback Lanvi control API.
+  Project: Lanvi | Developer: Mayank Chawdhari AKA BOSS294
+  Changelog: Adds Lanvi Music and Lanvi Cinema playback surfaces with byte-range streaming controls.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' http://127.0.0.1:8788; media-src http://127.0.0.1:8788 blob:; img-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'none'">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>Lanvi — Media Library</title>
+  <link rel="stylesheet" href="media.css">
+</head>
+<body>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+    <symbol id="ph-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5m7 7-7-7 7-7"/></symbol>
+    <symbol id="ph-music-notes" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13M9 8l12-2"/><ellipse cx="6" cy="18" rx="3" ry="2.5"/><ellipse cx="18" cy="16" rx="3" ry="2.5"/></symbol>
+    <symbol id="ph-film-slate" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="2"/><path d="m3 10 18-4M7 4l4 2m2-3 4 3m-7 6v6m4-6v6"/></symbol>
+    <symbol id="ph-radar" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 12 18.4 5.6M12 3v2M21 12h-2M12 21v-2M3 12h2"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="ph-arrow-clockwise" viewBox="0 0 24 24"><path d="M20 7v5h-5M19 12a7 7 0 0 0-12-4.95L4 10M4 17v-5h5M5 12a7 7 0 0 0 12 4.95L20 14"/></symbol>
+    <symbol id="ph-play" viewBox="0 0 24 24"><path d="m7 4 13 8-13 8Z"/></symbol>
+    <symbol id="ph-pause" viewBox="0 0 24 24"><path d="M8 5h3v14H8zM15 5h3v14h-3z"/></symbol>
+    <symbol id="ph-skip-back" viewBox="0 0 24 24"><path d="M5 5v14M19 5 7 12l12 7Z"/></symbol>
+    <symbol id="ph-skip-forward" viewBox="0 0 24 24"><path d="M19 5v14M5 5l12 7-12 7Z"/></symbol>
+    <symbol id="ph-back-10" viewBox="0 0 24 24"><path d="M4 7v5h5M5 12a8 8 0 1 0 2-5.7L4 9"/><path d="M10 10h3v6m-3-3 2-3"/></symbol>
+    <symbol id="ph-forward-10" viewBox="0 0 24 24"><path d="M20 7v5h-5m4 0a8 8 0 1 1-2-5.7L20 9"/><path d="M10 10h3v6m-3-3 2-3"/></symbol>
+    <symbol id="ph-volume-high" viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9Z"/><path d="M16 9a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"/></symbol>
+    <symbol id="ph-volume-mute" viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9Z"/><path d="m16 9 5 6m0-6-5 6"/></symbol>
+    <symbol id="ph-maximize" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol>
+    <symbol id="ph-picture-in-picture" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><rect x="11" y="11" width="8" height="6" rx="1"/></symbol>
+    <symbol id="ph-magnifying-glass" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="7.3"/><path d="m16.2 16.2 4.3 4.3"/></symbol>
+    <symbol id="ph-shield-check" viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="ph-folder-open" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h5l2 2h7a2 2 0 0 1 2 2v2H6a2 2 0 0 0-1.9 1.4L2.5 19a2 2 0 0 1-.5-1.3Z"/><path d="M6 11h15l-2 8H4Z"/></symbol>
+    <symbol id="ph-x" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+    <symbol id="ph-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/></symbol>
+  </svg>
+  <header class="topbar">
+    <a class="brand" href="dashboard.html"><img class="brand-symbol" src="icons/lanvi-48.png" alt="Lanvi logo" width="38" height="38"><span><strong>lanvi</strong><small>LOCAL MEDIA</small></span></a>
+    <div class="top-actions"><span id="bridgeState" class="state-pill checking"><i></i>Checking bridge</span><a class="button button-secondary" href="dashboard.html"><svg class="icon"><use href="#ph-arrow-left"/></svg> Receiver</a></div>
+  </header>
+  <main class="page-shell">
+    <section class="hero-row">
+      <div><p class="eyebrow">YOUR PHONE. YOUR LIBRARY.</p><h1>Media, without moving it.</h1><p class="intro">Browse music and movies stored on your paired phone. Lanvi streams encrypted chunks over your local network; your files stay on the phone.</p></div>
+      <div class="device-control panel"><label for="deviceSelect">SOURCE DEVICE</label><div class="device-select-row"><select id="deviceSelect"><option value="">Searching for Lanvi phones…</option></select><button id="refreshBtn" class="icon-button" title="Refresh devices and library" aria-label="Refresh devices and library"><svg class="icon"><use href="#ph-arrow-clockwise"/></svg></button></div><div id="libraryStatus" class="library-status">Start the PC bridge and enable Media Library in the phone app.</div></div>
+    </section>
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+    <section id="browseView" class="browse-layout">
+      <div class="library-main panel">
+        <div class="section-heading"><div><p class="eyebrow">PHONE LIBRARY</p><h2>Browse collection</h2></div><span id="itemCount" class="count-pill">0 items</span></div>
+        <div class="library-toolbar"><div class="category-tabs" role="group" aria-label="Media category"><button class="category-tab active" data-filter="all">Everything</button><button class="category-tab" data-filter="music">Music</button><button class="category-tab" data-filter="video">Movies & video</button></div><label class="search-box"><svg class="icon"><use href="#ph-magnifying-glass"/></svg><input id="searchInput" type="search" placeholder="Search tracks, movies, folders…" autocomplete="off"></label></div>
+        <div id="folderChips" class="folder-chips"></div>
+        <div id="mediaList" class="media-list"><div class="empty-state"><span class="empty-glyph"><svg class="icon"><use href="#ph-folder-open"/></svg></span><strong>Connect a phone to browse media</strong><p>Pair the phone with this PC, then enable Media Library in Lanvi on Android.</p></div></div>
+      </div>
+      <aside class="sidebar panel"><div class="section-heading"><div><p class="eyebrow">NOW PLAYING</p><h2>Player</h2></div></div><div class="player-choice"><span class="player-choice-icon music"><svg class="icon"><use href="#ph-music-notes"/></svg></span><div><strong>Lanvi Music</strong><p>Queue, seeking, volume and playback controls.</p></div></div><div class="player-choice"><span class="player-choice-icon video"><svg class="icon"><use href="#ph-film-slate"/></svg></span><div><strong>Lanvi Cinema</strong><p>VLC-inspired timeline, skip, speed, volume, full screen and picture-in-picture.</p></div></div><div class="security-card"><svg class="icon"><use href="#ph-shield-check"/></svg><div><strong>Encrypted on the LAN</strong><p>Each requested media chunk is authenticated and decrypted only on this PC. No media is written to Chrome Downloads.</p></div></div><div class="format-note">Playback depends on Chrome's codec support. Some MKV/AVI codecs may not be playable without transcoding.</div></aside>
+    </section>
+
+    <section id="musicView" class="music-view" hidden>
+      <div class="music-topline"><button id="musicBackBtn" class="button button-secondary"><svg class="icon"><use href="#ph-arrow-left"/></svg> Library</button><span class="now-playing-label"><i></i> PLAYING FROM YOUR PHONE</span></div>
+      <div class="music-stage">
+        <div class="album-art"><div class="album-rings"><span></span><span></span><span></span></div><svg class="icon"><use href="#ph-music-notes"/></svg><small>LANVI MUSIC</small></div>
+        <div class="music-details"><p class="eyebrow">NOW PLAYING</p><h2 id="musicTitle">Choose a track</h2><p id="musicPath" class="subtle-text">Phone media library</p><div class="music-progress"><span id="musicCurrent">0:00</span><input id="musicSeek" type="range" min="0" max="1000" value="0" aria-label="Seek music"><span id="musicDuration">0:00</span></div><div class="music-controls"><button id="shuffleBtn" class="control-icon" title="Shuffle"><span>⇄</span></button><button id="previousBtn" class="control-icon" title="Previous track"><svg class="icon"><use href="#ph-skip-back"/></svg></button><button id="musicPlayBtn" class="play-main" title="Play or pause"><svg class="icon"><use href="#ph-play"/></svg></button><button id="nextBtn" class="control-icon" title="Next track"><svg class="icon"><use href="#ph-skip-forward"/></svg></button><button id="repeatBtn" class="control-icon" title="Repeat"><span>↻</span></button></div><div class="volume-row"><svg class="icon"><use href="#ph-volume-high"/></svg><input id="musicVolume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Music volume"><span id="musicVolumeLabel">80%</span></div><p class="streaming-footnote">Audio is streamed in authenticated 1 MiB chunks from your phone.</p></div>
+      </div>
+      <div class="music-queue panel"><div class="section-heading"><div><p class="eyebrow">UP NEXT</p><h2>Queue</h2></div><span id="queueCount" class="count-pill">0 tracks</span></div><div id="queueList" class="queue-list"></div></div>
+      <audio id="audioPlayer" preload="metadata"></audio>
+    </section>
+
+    <section id="videoView" class="video-view" hidden>
+      <div class="video-topline"><button id="videoBackBtn" class="button button-secondary"><svg class="icon"><use href="#ph-arrow-left"/></svg> Library</button><span class="now-playing-label"><i></i> LANVI CINEMA</span></div>
+      <div class="cinema-stage">
+        <div class="cinema-heading"><div><p class="eyebrow">NOW PLAYING</p><h2 id="videoTitle">Select a movie</h2><p id="videoPath" class="subtle-text">Phone media library</p></div><label class="subtitle-upload">Load subtitles (.vtt)<input id="subtitleFile" type="file" accept=".vtt,text/vtt"></label></div>
+        <div class="video-frame" id="videoFrame"><video id="videoPlayer" preload="metadata" playsinline></video><div id="videoOverlay" class="video-overlay"><button id="videoOverlayPlay" class="video-overlay-play" aria-label="Play video"><svg class="icon"><use href="#ph-play"/></svg></button><p>Lanvi Cinema</p></div><div class="cinema-controls"><div class="timeline-row"><span id="videoCurrent">0:00</span><input id="videoSeek" type="range" min="0" max="1000" value="0" aria-label="Seek video"><span id="videoDuration">0:00</span></div><div class="cinema-controls-bottom"><button id="videoPlayBtn" class="control-icon light" title="Play or pause"><svg class="icon"><use href="#ph-play"/></svg></button><button id="videoBack10" class="control-icon light" title="Back 10 seconds"><svg class="icon"><use href="#ph-back-10"/></svg></button><button id="videoForward10" class="control-icon light" title="Forward 10 seconds"><svg class="icon"><use href="#ph-forward-10"/></svg></button><button id="videoMuteBtn" class="control-icon light" title="Mute"><svg class="icon"><use href="#ph-volume-high"/></svg></button><input id="videoVolume" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="Video volume"><select id="videoSpeed" aria-label="Playback speed"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select><button id="captionsBtn" class="control-icon light" title="Toggle subtitles"><span>CC</span></button><button id="pipBtn" class="control-icon light" title="Picture in picture"><svg class="icon"><use href="#ph-picture-in-picture"/></svg></button><button id="fullscreenBtn" class="control-icon light" title="Full screen"><svg class="icon"><use href="#ph-maximize"/></svg></button></div></div></div>
+        <p class="cinema-hint">Keyboard: Space play/pause · ←/→ seek 10 seconds · F full screen. Supported audio/subtitle tracks vary by browser and file.</p>
+      </div>
+      <video id="subtitleProbe" hidden></video>
+    </section>
+    <footer class="page-footer"><span>LANVI · LOCAL MEDIA STREAMING</span><span>Nothing uploaded to the cloud. Nothing copied to Downloads.</span></footer>
+  </main>
+  <script src="media.js"></script>
+</body>
+</html>

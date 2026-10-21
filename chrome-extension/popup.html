@@ -1,0 +1,39 @@
+<!doctype html>
+<!--
+  Purpose: Lanvi Chrome toolbar launcher.
+  Integration: Chrome action popup; launches dashboard.html.
+  Project: Lanvi | Developer: Mayank Chawdhari AKA BOSS294
+  Changelog: Refined compact launcher with consistent brand, status feedback and micro-interactions.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Lanvi</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup-shell">
+    <header class="brand-row">
+      <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span class="brand-copy"><strong>lanvi</strong><small>LOCAL FILE TRANSFER</small></span>
+      <span class="brand-status-dot" aria-hidden="true"></span>
+    </header>
+    <section class="popup-hero">
+      <div class="eyebrow"><span></span>YOUR PC RECEIVER</div>
+      <h1>Files in.<br><em>Fuss out.</em></h1>
+      <p>Pair your phone with this PC and save shared files straight through Chrome Downloads.</p>
+    </section>
+    <button id="openDashboard" class="open-button" type="button">
+      <span class="open-button-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></svg></span>
+      <span>Open receiver dashboard</span>
+      <svg class="external-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"/></svg>
+    </button>
+    <div class="local-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg><span>Files stay on your local network.</span></div>
+    <div class="bridge-status" aria-live="polite"><span id="statusDot" class="status-dot"></span><div><strong id="bridgeStatus">Checking PC bridge…</strong><small id="bridgeDetail">Looking for the local receiver service</small></div></div>
+    <footer><span>LANVI</span><span>Direct device-to-PC sharing</span></footer>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>
